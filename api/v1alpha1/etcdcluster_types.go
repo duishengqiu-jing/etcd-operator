@@ -40,6 +40,11 @@ type EtcdClusterStatus struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:printcolumn:name="Image",type="string",priority=0,JSONPath=".spec.image",description="The Docker Image of MyApp"
+// +kubebuilder:printcolumn:name="Size",type="integer",JSONPath=".spec.size",description="Replicas of Etcd"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description="Create Time of Etcd"
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status",description="Status of Etcd"
+// +kubebuilder:subresource:status
 
 // EtcdCluster is the Schema for the etcdclusters API
 type EtcdCluster struct {

@@ -20,6 +20,7 @@ import (
 	"context"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/go-logr/logr"
@@ -66,29 +67,35 @@ func (r *EtcdClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	var svc corev1.Service
 	svc.Name = etcdCluster.Name
 	svc.Namespace = etcdCluster.Namespace
-	or, err := ctrl.CreateOrUpdate(ctx, r, &svc, func() error {
-		// 调谐必须在这个函数中去实现
-		MutateHeadlessSvc(&etcdCluster, &svc)
-		return controllerutil.SetControllerReference(&etcdCluster, &svc, r.Scheme)
-	})
-	if err != nil {
+
+	if err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		or, err := ctrl.CreateOrUpdate(ctx, r, &svc, func() error {
+			// 调谐必须在这个函数中去实现
+			MutateHeadlessSvc(&etcdCluster, &svc)
+			return controllerutil.SetControllerReference(&etcdCluster, &svc, r.Scheme)
+		})
+		log.Info("CreateOrUpdate", "Service", or)
+		return err
+	}); err != nil {
 		return ctrl.Result{}, err
 	}
-	log.Info("CreateOrUpdate", "Service", or)
 
 	// CreateOrUpdate StatefulSet
 	var sts appsv1.StatefulSet
 	sts.Name = etcdCluster.Name
 	sts.Namespace = etcdCluster.Namespace
-	or, err = ctrl.CreateOrUpdate(ctx, r, &sts, func() error {
-		// 调谐必须在这个函数中去实现
-		MutateStatefulSet(&etcdCluster, &sts)
-		return controllerutil.SetControllerReference(&etcdCluster, &sts, r.Scheme)
-	})
-	if err != nil {
+
+	if err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		or, err := ctrl.CreateOrUpdate(ctx, r, &sts, func() error {
+			// 调谐必须在这个函数中去实现
+			MutateStatefulSet(&etcdCluster, &sts)
+			return controllerutil.SetControllerReference(&etcdCluster, &sts, r.Scheme)
+		})
+		log.Info("CreateOrUpdate", "StatefulSet", or)
+		return err
+	}); err != nil {
 		return ctrl.Result{}, err
 	}
-	log.Info("CreateOrUpdate", "StatefulSet", or)
 
 	return ctrl.Result{}, nil
 }

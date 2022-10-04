@@ -8,6 +8,23 @@ metadata:
   creationTimestamp: null
   name: etcdclusters.etcd.ydzs.io
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .spec.image
+    description: The Docker Image of MyApp
+    name: Image
+    type: string
+  - JSONPath: .spec.size
+    description: Replicas of Etcd
+    name: Size
+    type: integer
+  - JSONPath: .metadata.creationTimestamp
+    description: Create Time of Etcd
+    name: Age
+    type: date
+  - JSONPath: .status
+    description: Status of Etcd
+    name: Status
+    type: string
   group: etcd.ydzs.io
   names:
     kind: EtcdCluster
@@ -15,6 +32,8 @@ spec:
     plural: etcdclusters
     singular: etcdcluster
   scope: Namespaced
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: EtcdCluster is the Schema for the etcdclusters API
