@@ -1,7 +1,7 @@
 apiVersion: etcd.ydzs.io/v1alpha1
 kind: EtcdCluster
 metadata:
-  name: etcd-sample
+  name: etcd
 spec:
   size: 3
   image: cnych/etcd:v3.4.13

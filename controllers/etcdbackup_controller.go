@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/prometheus/common/log"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -85,6 +86,8 @@ func (r *EtcdBackupReconciler) setStateDesired(state *backupState) error {
 	var desired backupStateContainer
 
 	// 创建一个管理的 Pod 用于执行备份操作
+	fmt.Print(r.BackupImage)
+	log.Info("etcdbackup_controller", "setStateDesired", r.BackupImage)
 	pod, err := podForBackup(state.backup, r.BackupImage)
 	if err != nil {
 		return fmt.Errorf("computing pod for backup error: %q", err)
@@ -105,6 +108,7 @@ func (r EtcdBackupReconciler) getState(ctx context.Context, req ctrl.Request) (*
 
 	// 获取 EtcdBackup 对象
 	state.backup = &etcdv1alpha1.EtcdBackup{}
+	log.Info("-----getState----", state.backup.Name, state.backup.Namespace)
 	if err := r.Get(ctx, req.NamespacedName, state.backup); err != nil {
 		if client.IgnoreNotFound(err) != nil {
 			return nil, fmt.Errorf("getting backup error: %s", err)

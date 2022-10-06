@@ -1,7 +1,7 @@
 # Build the manager binary
 FROM golang:1.13 as builder
 
-RUN yum -y update && yum -y install upx
+RUN apt-get -y update && apt-get -y install upx
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
