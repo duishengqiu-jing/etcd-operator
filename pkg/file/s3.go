@@ -30,14 +30,14 @@ func (su *s3Uploader) InitClient() (*minio.Client, error) {
 	})
 }
 
-func (su *s3Uploader) Upload(ctx context.Context, filePath string) (int64, error) {
+func (su *s3Uploader) Upload(ctx context.Context, filePath string, bucketName string, objectName string) (int64, error) {
 	client, err := su.InitClient()
 	if err != nil {
 		return 0, err
 	}
 	log := ctrl.Log.WithName("backup-upload")
-	bucketName := "duishengqiu"      // todo
-	objectName := "etcd-snapshot.db" // todo
+	//bucketName := "duishengqiu"      // todo
+	//objectName := "etcd-snapshot.db" // todo
 	location := "us-east-1"
 	//log.Printf("--------s3Upload-----bucketName:%s,objectName:%s,")
 	log.Info("[s3Upload] Uploading snapshot")

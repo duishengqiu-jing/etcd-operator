@@ -23,6 +23,11 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+var (
+	BackupStorageTypeS3  BackupStorageType = "s3"
+	BackupStorageTypeOSS BackupStorageType = "oss"
+)
+
 type BackupStorageType string
 
 // EtcdBackupSpec defines the desired state of EtcdBackup
@@ -44,14 +49,14 @@ type BackupSource struct {
 
 type S3BackupSource struct {
 	Path     string `json:"path"`
-	S3Secret string `json:"s3Secret"`
+	Secret   string `json:"secret"`
 	Endpoint string `json:"endpoint,omitempty"`
 }
 
 type OSSBackupSource struct {
-	Path      string `json:"path"`
-	OSSSecret string `json:"ossSecret"`
-	Endpoint  string `json:"endpoint,omitempty"`
+	Path     string `json:"path"`
+	Secret   string `json:"secret"`
+	Endpoint string `json:"endpoint,omitempty"`
 }
 
 type EtcdBackupPhase string

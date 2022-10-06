@@ -88,10 +88,10 @@ func (r *EtcdBackupReconciler) setStateDesired(state *backupState) error {
 	// 创建一个管理的 Pod 用于执行备份操作
 	fmt.Print(r.BackupImage)
 	log.Info("etcdbackup_controller", "setStateDesired", r.BackupImage)
-	pod, err := podForBackup(state.backup, r.BackupImage)
-	if err != nil {
-		return fmt.Errorf("computing pod for backup error: %q", err)
-	}
+	pod := podForBackup(state.backup, r.BackupImage)
+	//if err != nil {
+	//	return fmt.Errorf("computing pod for backup error: %q", err)
+	//}
 	// 配置 controller reference
 	if err := controllerutil.SetControllerReference(state.backup, pod, r.Scheme); err != nil {
 		return fmt.Errorf("setting pod controller reference error : %s", err)
@@ -132,8 +132,28 @@ func (r EtcdBackupReconciler) getState(ctx context.Context, req ctrl.Request) (*
 }
 
 // podForBackup 创建一个 Pod 运行备份任务
-func podForBackup(backup *etcdv1alpha1.EtcdBackup, image string) (*corev1.Pod, error) {
-	// 构造一个全新的备份 Pod
+// controllers/etcdbackup_controller.go
+
+func podForBackup(backup *etcdv1alpha1.EtcdBackup, image string) *corev1.Pod {
+	var secretRef *corev1.SecretEnvSource
+	var backupURL, backupEndpoint string
+	if backup.Spec.StorageType == etcdv1alpha1.BackupStorageTypeS3 {
+		backupURL = fmt.Sprintf("%s://%s", backup.Spec.StorageType, backup.Spec.S3.Path)
+		backupEndpoint = backup.Spec.S3.Endpoint
+		secretRef = &corev1.SecretEnvSource{
+			LocalObjectReference: corev1.LocalObjectReference{
+				Name: backup.Spec.S3.Secret,
+			},
+		}
+	} else {
+		backupURL = fmt.Sprintf("%s://%s", backup.Spec.StorageType, backup.Spec.OSS.Path)
+		backupEndpoint = backup.Spec.OSS.Endpoint
+		secretRef = &corev1.SecretEnvSource{
+			LocalObjectReference: corev1.LocalObjectReference{
+				Name: backup.Spec.OSS.Secret,
+			},
+		}
+	}
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      backup.Name,
@@ -143,25 +163,37 @@ func podForBackup(backup *etcdv1alpha1.EtcdBackup, image string) (*corev1.Pod, e
 			Containers: []corev1.Container{
 				{
 					Name:  "etcd-backup",
-					Image: image, // todo
+					Image: image,
 					Args: []string{
 						"--etcd-url", backup.Spec.EtcdUrl,
+						"--backup-url", backupURL,
+					},
+					Env: []corev1.EnvVar{
+						{
+							Name:  "ENDPOINT",
+							Value: backupEndpoint,
+						},
+					},
+					EnvFrom: []corev1.EnvFromSource{
+						{
+							SecretRef: secretRef,
+						},
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
 							corev1.ResourceCPU:    resource.MustParse("100m"),
-							corev1.ResourceMemory: resource.MustParse("50Mi"),
+							corev1.ResourceMemory: resource.MustParse("100Mi"),
 						},
 						Limits: corev1.ResourceList{
 							corev1.ResourceCPU:    resource.MustParse("100m"),
-							corev1.ResourceMemory: resource.MustParse("50Mi"),
+							corev1.ResourceMemory: resource.MustParse("100Mi"),
 						},
 					},
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
 		},
-	}, nil
+	}
 }
 
 // controllers/etcdbackup_controller.go
