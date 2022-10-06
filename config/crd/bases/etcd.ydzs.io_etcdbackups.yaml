@@ -44,13 +44,13 @@ spec:
               properties:
                 endpoint:
                   type: string
-                ossSecret:
-                  type: string
                 path:
                   type: string
+                secret:
+                  type: string
               required:
-              - ossSecret
               - path
+              - secret
               type: object
             s3:
               properties:
@@ -58,11 +58,11 @@ spec:
                   type: string
                 path:
                   type: string
-                s3Secret:
+                secret:
                   type: string
               required:
               - path
-              - s3Secret
+              - secret
               type: object
             storageType:
               type: string

@@ -34,7 +34,7 @@ import (
 var (
 	scheme             = runtime.NewScheme()
 	setupLog           = ctrl.Log.WithName("setup")
-	defaultBackupImage = "duishengqiu/etcd-operator-backup:v0.0.4" // 修改默认备份镜像地址
+	defaultBackupImage = "art.local:8081/docker-local/etcd-operator-backup:v0.0.4" // 修改默认备份镜像地址
 )
 
 func init() {
@@ -79,6 +79,7 @@ func main() {
 		Client:      mgr.GetClient(),
 		Log:         ctrl.Log.WithName("controllers").WithName("EtcdBackup"),
 		Scheme:      mgr.GetScheme(),
+		Recorder:    mgr.GetEventRecorderFor("etcdbackup-controller"), // 初始化 Recorder
 		BackupImage: defaultBackupImage,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "EtcdBackup")

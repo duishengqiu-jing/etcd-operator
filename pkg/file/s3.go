@@ -40,7 +40,7 @@ func (su *s3Uploader) Upload(ctx context.Context, filePath string, bucketName st
 	//objectName := "etcd-snapshot.db" // todo
 	location := "us-east-1"
 	//log.Printf("--------s3Upload-----bucketName:%s,objectName:%s,")
-	log.Info("[s3Upload] Uploading snapshot")
+	log.Info("[s3Upload] Uploading snapshot", "bucketName", bucketName)
 	err = client.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if you run this twice)
