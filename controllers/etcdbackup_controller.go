@@ -79,6 +79,11 @@ func (r *EtcdBackupReconciler) setStateActual(ctx context.Context, state *backup
 		}
 		actual.pod = nil
 	}
+	if actual.pod != nil {
+		ctrl.Log.Info("setStateActual", "actual.pod.Name", actual.pod.Name, "actual.pod.NameSpace", actual.pod.Namespace)
+	} else {
+		ctrl.Log.Info("setStateActual", "actual.pod", nil)
+	}
 
 	// 填充当前真实的状态
 	state.actual = &actual
@@ -103,6 +108,7 @@ func (r *EtcdBackupReconciler) setStateDesired(state *backupState) error {
 
 	// 获取到期望的对象
 	state.desired = &desired
+	ctrl.Log.Info("setStateDesired", "state.desired.pod.Name", state.desired.pod.Name, "state.desired.pod.NameSpace", state.desired.pod.Namespace)
 	return nil
 }
 
@@ -158,6 +164,8 @@ func podForBackup(backup *etcdv1alpha1.EtcdBackup, image string) (*corev1.Pod, e
 			return nil, err
 		}
 		backupURL = fmt.Sprintf("%s://%s", backup.Spec.StorageType, objectURL.String())
+		//backupURL = backup.Spec.S3.Path
+		ctrl.Log.Info("podForBackup:", "backupURL", backupURL)
 		secretRef = &corev1.SecretEnvSource{
 			LocalObjectReference: corev1.LocalObjectReference{
 				Name: backup.Spec.S3.Secret,

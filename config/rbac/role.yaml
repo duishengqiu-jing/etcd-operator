@@ -90,3 +90,23 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - etcd.ydzs.io
+  resources:
+  - etcdrestores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - etcd.ydzs.io
+  resources:
+  - etcdrestores/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -1,0 +1,97 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: etcdrestores.etcd.ydzs.io
+spec:
+  group: etcd.ydzs.io
+  names:
+    kind: EtcdRestore
+    listKind: EtcdRestoreList
+    plural: etcdrestores
+    singular: etcdrestore
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: EtcdRestore is the Schema for the etcdrestores API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: EtcdRestoreSpec defines the desired state of EtcdRestore
+          properties:
+            backupStorageType:
+              type: string
+            etcdCluster:
+              properties:
+                name:
+                  description: Name is the EtcdCluster resource name.
+                  type: string
+              required:
+              - name
+              type: object
+            oss:
+              properties:
+                endpoint:
+                  type: string
+                path:
+                  type: string
+                secret:
+                  type: string
+              required:
+              - path
+              - secret
+              type: object
+            s3:
+              properties:
+                endpoint:
+                  type: string
+                path:
+                  type: string
+                secret:
+                  type: string
+              required:
+              - path
+              - secret
+              type: object
+          required:
+          - backupStorageType
+          - etcdCluster
+          type: object
+        status:
+          description: EtcdRestoreStatus defines the observed state of EtcdRestore
+          properties:
+            phase:
+              type: string
+            reason:
+              description: Reason indicates the reason for any restore related failures.
+              type: string
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
